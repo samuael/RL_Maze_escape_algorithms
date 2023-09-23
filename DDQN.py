@@ -17,6 +17,7 @@ from os.path import exists
 
 
 
+
 @chex.dataclass
 class Transition:
     state: chex.Array # the state of the cell
@@ -91,7 +92,8 @@ class DQNAgent:
                  # method of updating a target neural network slowly over time to make training more stable
                  target_ema: float,
                  seed: int=0,
-                 model_name: str="DQN_Network_params.pkl"
+                 model_name: str="DQN_Network_params.pkl",
+                 size: int = 20,
                  ) -> None:
         self._gamma = gamma
         self._e = epsilon
@@ -105,11 +107,12 @@ class DQNAgent:
         self._buffer= ReplayByuffer(buffer_capacity)
         
         self._state = None
+        self.size= size
         
         # initializing the parameters
         params= init_params_function(jax.random.PRNGKey(seed))
-        if exists(model_name):
-            params = self.load_model(params = params, model_name=model_name)
+        if exists(f"{self.size}/{model_name}"):
+            params = self.load_model(params = params, model_name=f"{self.size}/{model_name}")
         
         self._learner_state = LearnerState(
             online_params= params,
@@ -122,7 +125,7 @@ class DQNAgent:
     
     def dump_model(self, params: hk.Params,model_name="DQN_Network_params.pkl"):
         serialized_params = hk.data_structures.to_state_dict(params)
-        with open(model_name, 'wb') as f:
+        with open(f"{self.size}/{model_name}", 'wb') as f:
             pickle.dump(serialized_params, f)
     
     def load_model(self, params: hk.Params, model_name="DQN_Network_params.pkl") -> hk.Params:
@@ -260,42 +263,29 @@ class DQNAgent:
                 batch)
             return loss
         return None
-        
-    
-# default_env = np.array([
-#     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
-#     [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
-#     [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
-#     [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
-#     [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-#     [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-# ])
 
 default_env = np.array([
-    [0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 1, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 0, 0],
-    [1, 0, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1],
-    [0, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0]
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+    [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 ])
-    
 
 # runs one episode and collects the total reward it got.
 # If Eval it is to see the total cumulative reward
@@ -401,6 +391,8 @@ class DQNNetworkModel:
     def train(self):
         print(f"Episode number:\t| Average reward on {self.num_eval_episodes} eval episodes")
         print("------------------------------------------------------")
+        timestamp = datetime.now()
+        timelapse = None
         for episode in range(self.num_episodes):
             run_dqn_episode(
                 dqn_agent= self._agent,
@@ -433,20 +425,18 @@ class DQNNetworkModel:
                 # This will stop at convergence.
                 if w_all:
                     print("Won from all start cells, stop learning\n")
+                    # timelapse = datetime.now() - timestamp
                     break
+        timelapse = datetime.now().second - timestamp.second
+        print("Time taken to finish: ", timelapse, " secobds")
         
         self.dump_model(self._agent._learner_state.target_params)
         
 
 
     def dump_model(self, params: hk.Params,model_name="DQN_Network_params.pkl"):
-        with open(model_name, 'wb') as f:
+        with open(f"{self._env.maze.shape[0]}/{model_name}", 'wb') as f:
             pickle.dump(params, f)
-    
-    def load_model(self, model_name="DQN_Network_params.pkl") -> hk.Params:
-        with open(model_name, "rb") as f:
-            loaded_params = pickle.load(model_name)
-        return hk.Param(loaded_params)
     
      
     # draw the training loss.
@@ -490,6 +480,7 @@ model = DQNNetworkModel(
         buffer_capacity= 10000,
         batch_size= 32,
         target_ema= .99,
+        size=env.maze.shape[0],
     ),
 )
 

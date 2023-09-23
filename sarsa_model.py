@@ -9,49 +9,43 @@ import pickle
 from os.path import exists
 from environment.maze import Maze,  Render, Status
 
-# maze = jnp.array([
-#     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
-#     [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
-#     [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
-#     [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
-#     [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-#     [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-# ])
-maze = np.array([
-    [0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 1, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 0, 0],
-    [1, 0, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1],
-    [0, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0]
-]) 
+maze = jnp.array([
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+    [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+])
 
 game = Maze(maze)
 
 class SARSAModel():
     
-    def __init__(self,game, model_name= "data.pkl", **kwargs):
+    def __init__(self,
+                 game, 
+                 model_name= "data.pkl",
+                 size: int = 20):
         # super().__init__(game, name="SARSAModel", **kwargs)
         # creating the Q dictionary of key: (state, action) and value: [0,1]
         self.Q= dict()
-        if exists(model_name):
-            self.Q = self.load_model(model_name)
+        self.size = size
+        if exists(f"{self.size}/{model_name}"):
+            self.Q = self.load_model(f"{self.size}/{model_name}")
         self.environment = game
         self.name = "SARSA"
         self.key = jax.random.PRNGKey(0)
@@ -68,7 +62,7 @@ class SARSAModel():
         
         discount = kwargs.get("discount", 0.90)
         exploration_rate = kwargs.get("exploration_rate", 0.10)
-        exploration_decay = kwargs.get("exploration_decay", 0.995)
+        exploration_decay = kwargs.get("exploration_decay", 0.997)
         learning_rate = kwargs.get("learning_rate", 0.10)
         episodes = max(kwargs.get("episodes", 1000), 1)
         
@@ -81,7 +75,7 @@ class SARSAModel():
         
         start_list = list()
         start_time = datetime.now()
-        
+        timelapse = None
         for episode in range(1, episodes+1):
             if not start_list:
                 start_list = self.environment.empty.copy()
@@ -133,6 +127,8 @@ class SARSAModel():
                 exploration_rate *= exploration_decay
             print(f"Episod: {episode}/{episodes} | status: {status.name} |e-val: {exploration_rate}\n")
         self.dump_model(self.Q)
+        lapsetime = datetime.now().second-start_time.second
+        print("Time taken to finish: ", lapsetime, " seconds")
         return cumulative_reward_history, win_history, episode, datetime.now()-start_time
     
     def makeHashable(self, state):
@@ -142,8 +138,8 @@ class SARSAModel():
             return tuple(state)
         return tuple((int(state[0]), int(state[1])))
         
-    def dump_model(self, model: dict):
-        a_file = open("data.pkl", "wb")
+    def dump_model(self, model: dict, name="data.pkl"):
+        a_file = open(f"{self.environment.maze.shape[0]}/{name}", "wb")
         pickle.dump(model, a_file)
         a_file.close()
     
