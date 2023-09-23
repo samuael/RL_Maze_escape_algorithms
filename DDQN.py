@@ -287,6 +287,25 @@ default_env = np.array([
     [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 ])
 
+
+# default_env = np.array([
+#     [0, 1, 0, 0, 0, 0, 0, 0],
+#     [0, 1, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 1, 0, 1, 0],
+#     [0, 1, 0, 1, 0, 0, 0, 0],
+#     [1, 0, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 0, 1, 1, 1],
+#     [0, 1, 1, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 1, 0, 0]
+# ])
+
+# default_env = np.array([
+#     [0, 1, 0, 0],
+#     [0, 1, 0, 1],
+#     [0, 0, 0, 1],
+#     [0, 1, 0, 0]
+# ])
+
 # runs one episode and collects the total reward it got.
 # If Eval it is to see the total cumulative reward
 # else if Not Eval it is to collect the moves and use that for training.
@@ -427,8 +446,8 @@ class DQNNetworkModel:
                     print("Won from all start cells, stop learning\n")
                     # timelapse = datetime.now() - timestamp
                     break
-        timelapse = datetime.now().second - timestamp.second
-        print("Time taken to finish: ", timelapse, " secobds")
+        timelapse = (datetime.now() - timestamp).total_seconds()
+        print("Time taken to finish: ", timelapse, " seconds")
         
         self.dump_model(self._agent._learner_state.target_params)
         

@@ -127,8 +127,8 @@ class SARSAModel():
                 exploration_rate *= exploration_decay
             print(f"Episod: {episode}/{episodes} | status: {status.name} |e-val: {exploration_rate}\n")
         self.dump_model(self.Q)
-        lapsetime = datetime.now().second-start_time.second
-        print("Time taken to finish: ", lapsetime, " seconds")
+        timelapse = (datetime.now() - start_time).total_seconds()
+        print("Time taken to finish: ", timelapse, " seconds")
         return cumulative_reward_history, win_history, episode, datetime.now()-start_time
     
     def makeHashable(self, state):
