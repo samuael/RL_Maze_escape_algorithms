@@ -294,7 +294,7 @@ class Maze:
 
         state = self.__observe()
         while True:
-            if model_type==ModelType.DQN:
+            if model_type==ModelType.DQN or model_type == ModelType.PolicyGradient:
                 action = model.predict(state=state)
             else:
                 action = model.predict(model.Q, state=state)
