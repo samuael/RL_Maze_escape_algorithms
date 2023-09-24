@@ -273,12 +273,12 @@ default_env = np.array([
 #     [0, 0, 0, 0, 0, 1, 0, 0]
 # ])
 
-default_env = np.array([
-    [0, 1, 0, 0],
-    [0, 1, 0, 1],
-    [0, 0, 0, 1],
-    [0, 1, 0, 0]
-])
+# default_env = np.array([
+#     [0, 1, 0, 0],
+#     [0, 1, 0, 1],
+#     [0, 0, 0, 1],
+#     [0, 1, 0, 0]
+# ])
 
 
 class DuelingDQNNetworkModel:
