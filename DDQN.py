@@ -339,7 +339,7 @@ class DQNNetworkModel:
                 # -------------------------------------------------------
                 
                 # Evaluate by running in all cells.
-                w_all, win_rate = self._env.check_win_all(self, model_type=environment.maze.ModelType.DQN)
+                w_all, win_rate = self._env.check_win_all(self, model_type=environment.maze.ModelType.AgentBased)
                 self.win_rate_history.append((episode, win_rate))
                 
                 # This will stop at convergence.

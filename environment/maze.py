@@ -30,8 +30,7 @@ default_env = np.array([
 
 class ModelType(IntEnum):
     SARSA =0
-    PolicyGradient =1
-    DQN = 2
+    AgentBased = 2
 
 class Cell(IntEnum):
     EMPTY = 0  # indicates empty cell where the agent can move to
@@ -294,7 +293,7 @@ class Maze:
 
         state = self.__observe()
         while True:
-            if model_type==ModelType.DQN or model_type == ModelType.PolicyGradient:
+            if model_type==ModelType.AgentBased:
                 action = model.predict(state=state)
             else:
                 action = model.predict(model.Q, state=state)
