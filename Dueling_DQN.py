@@ -19,12 +19,19 @@ from abstracts import LearnerState, Transition, ReplayByuffer, run_dqn_episode
 
 # Haiku Neural network function returning a Neural layers
 
-def deepMazeNetwork(x:  chex.Array):
+def duelingDeepMazeNetwork(x:  chex.Array):
     out = hk.Linear(64)(x)
     out = jax.nn.relu(out)
     out = hk.Linear(64)(out)
     out = jax.nn.relu(out)
-    return hk.Linear(4)(out)
+    
+    # value function V(x)
+    V = hk.Linear(1)(out)
+    
+    # advantage function A(x)
+    A: chex.Array= hk.Linear(4)(out)
+    Q = V + (A - A.mean(axis=-1, keepdims=True))
+    return Q
 
 # transform the model
 
@@ -33,8 +40,10 @@ def deepMazeNetwork(x:  chex.Array):
 # apply: applies the change on the method.
 
 # removes the random generator parameter from the apply() function.
-dqn_network = hk.without_apply_rng(hk.transform(deepMazeNetwork))
+dqn_network = hk.without_apply_rng(hk.transform(duelingDeepMazeNetwork))
 
+    
+# ----------------------------------------------------------------
 
 class DQNAgent:
     def __init__(self, 
@@ -50,7 +59,7 @@ class DQNAgent:
                  # method of updating a target neural network slowly over time to make training more stable
                  target_ema: float,
                  seed: int=0,
-                 model_name: str="DQN_Network_params.pkl",
+                 model_name: str="Dueling_DQN_Network_params.pkl",
                  size: int = 20,
                  ) -> None:
         self._gamma = gamma
@@ -81,12 +90,12 @@ class DQNAgent:
         # Jitting the _update function.
         self._update = jax.jit(self._update_function)
     
-    def dump_model(self, params: hk.Params,model_name="DQN_Network_params.pkl"):
+    def dump_model(self, params: hk.Params,model_name="Dueling_DQN_Network_params.pkl"):
         serialized_params = hk.data_structures.to_state_dict(params)
         with open(f"{self.size}/{model_name}", 'wb') as f:
             pickle.dump(serialized_params, f)
     
-    def load_model(self, params: hk.Params, model_name="DQN_Network_params.pkl") -> hk.Params:
+    def load_model(self, params: hk.Params, model_name="Dueling_DQN_Network_params.pkl") -> hk.Params:
          with open(model_name, "rb") as f:
             loaded_params = pickle.load(f)
             params = hk.data_structures.merge(params, loaded_params)
@@ -173,13 +182,20 @@ class DQNAgent:
                        target_params: hk.Params,
                        transitions: Transition
                        ) -> chex.Array: # returns a loss
-        target_q_actions = self._network_apply_func(target_params, transitions.next_state)
+        
+        next_qs = jnp.argmax(self._network_apply_func(online_params,transitions.next_state), axis=-1, keepdims=True)
+
+        # Step 2: Calculate masked_next_qs
+        masked_next_qs = jnp.take_along_axis(self._network_apply_func(target_params, transitions.next_state), next_qs, axis=-1).squeeze()
+        masked_next_qs = jnp.squeeze(masked_next_qs)
+        # target_q_actions = self._network_apply_func(target_params, transitions.next_state)
         
         # If the state is WIN or LOSE the transition.done will be true.
         y = jnp.where(
             transitions.done,
             transitions.reward,
-            transitions.reward + self._gamma * jnp.max(target_q_actions, axis=-1)
+            # transitions.reward + self._gamma * jnp.max(masked_next_qs, axis=-1)
+            transitions.reward + self._gamma * masked_next_qs
         )
         
         online_q_values = self._network_apply_func(online_params, transitions.state) 
@@ -222,28 +238,28 @@ class DQNAgent:
             return loss
         return None
 
-# default_env = np.array([
-#     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
-#     [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
-#     [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
-#     [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
-#     [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-#     [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
-#     [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
-#     [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-#     [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-#     [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
-# ])
+default_env = np.array([
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+    [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+])
 
 
 # default_env = np.array([
@@ -264,20 +280,20 @@ default_env = np.array([
     [0, 1, 0, 0]
 ])
 
-class DQNNetworkModel:
+
+class DuelingDQNNetworkModel:
     """ Prediction model which uses Q-learning and a neural network which replays past moves.
 
         The network learns by replaying a batch of training moves. The training algorithm ensures that
         the game is started from every possible cell. Training ends after a fixed number of games, or
         earlier if a stopping criterion is reached (here: a 100% win rate).
     """
-    
     def __init__(self, 
                  environment: Maze, 
                  agent: DQNAgent, 
                  num_episodes: int = 300000,
                  batch_size=64,
-                 evaluation_interval: int=200,
+                 evaluation_interval: int=500,
                  ):
         super().__init__()
         self._env = environment
@@ -306,6 +322,7 @@ class DQNNetworkModel:
         return self._agent.select_action(state=state,eval=True)
 
     def train(self):
+        print(f"Dueling DQN training")
         print(f"Episode number:\t| Average reward on {self.num_eval_episodes} eval episodes")
         print("------------------------------------------------------")
         timestamp = datetime.now()
@@ -351,7 +368,7 @@ class DQNNetworkModel:
         
 
 
-    def dump_model(self, params: hk.Params,model_name="DQN_Network_params.pkl"):
+    def dump_model(self, params: hk.Params,model_name="Dueling_DQN_Network_params.pkl"):
         with open(f"{self._env.maze.shape[0]}/{model_name}", 'wb') as f:
             pickle.dump(params, f)
     
@@ -378,25 +395,25 @@ class DQNNetworkModel:
 
 
 # Create the neural network pure functions.
-dqn_network = hk.without_apply_rng(hk.transform(deepMazeNetwork))
+dqn_network = hk.without_apply_rng(hk.transform(duelingDeepMazeNetwork))
 
 # Bind a dummy observation to the init function so the agent doesn't have to.
 dummy_observation = jnp.zeros((2,), float)
 init_params_fn = lambda rng: dqn_network.init(rng, dummy_observation[None, ...])
 
 env = Maze(default_env)
-model = DQNNetworkModel(
+model = DuelingDQNNetworkModel(
     environment= env,
     agent=DQNAgent(
         init_params_function=init_params_fn ,
         network_apply_function= dqn_network.apply,
-        optimizer= optax.adam(learning_rate=5e-4),
+        optimizer= optax.adam(learning_rate=3e-4),
         gamma=0.9,
-        epsilon=0.15,
+        epsilon=0.3,
         num_actions= len(env.actions),
         buffer_capacity= 10000,
         batch_size= 256,
-        target_ema= .87,
+        target_ema= .89,
         size=env.maze.shape[0],
     ),
 )

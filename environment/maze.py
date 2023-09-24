@@ -30,6 +30,7 @@ default_env = np.array([
 
 class ModelType(IntEnum):
     SARSA =0
+    PolicyGradient =1
     DQN = 2
 
 class Cell(IntEnum):
