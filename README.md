@@ -9,4 +9,4 @@ The table below gives an impression of the relative performance of each of these
 | SARSA | 10 times | 43600 | 16.5 sec |
 | DDQN  | 10 times | 43600 | 5.2 sec |
 
-Requires matplotlib, numpy, keras and tensorflow.
+Requires matplotlib, numpy, and Jax.
