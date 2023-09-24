@@ -167,6 +167,9 @@ class DQNAgent:
 
     def first_state(self, state: chex.Array):
         self._state = state
+        
+    def buffer_size(self)->int:
+        return self._buffer.size, self._batch_size
     
     def _loss_function(self, 
                        online_params: hk.Params,
@@ -394,8 +397,8 @@ model = DQNNetworkModel(
         gamma=0.9,
         epsilon=0.15,
         num_actions= len(env.actions),
-        buffer_capacity= 10000,
-        batch_size= 256,
+        buffer_capacity= 3000000,
+        batch_size= 1048,
         target_ema= .87,
         size=env.maze.shape[0],
     ),

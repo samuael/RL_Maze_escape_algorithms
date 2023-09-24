@@ -89,6 +89,8 @@ class AbstractAgent:
     
     def update(self) -> chex.Array | None:
         pass
+    def buffer_size(self)->int:
+        return 0, 0
     
 
 # runs one episode and collects the total reward it got.
@@ -147,4 +149,7 @@ def run_dqn_episode(
         if (status in (Status.LOSE, Status.WIN)) or (step >= maxsteps):
             break
         state = next_state
+    buffer_size, batch_size = dqn_agent.buffer_size()
+    if buffer_size < batch_size:
+        cumulative_reward += run_dqn_episode(dqn_agent, env,eval)
     return cumulative_reward

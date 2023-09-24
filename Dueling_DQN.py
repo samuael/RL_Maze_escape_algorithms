@@ -100,6 +100,9 @@ class DQNAgent:
             loaded_params = pickle.load(f)
             params = hk.data_structures.merge(params, loaded_params)
          return params
+     
+    def buffer_size(self)->int:
+        return self._buffer.size, self._batch_size
     
     def _update_function(
                 self,
@@ -229,14 +232,14 @@ class DQNAgent:
     
     def update(self) -> chex.Array | None:
         
-        if self._buffer.size> self._batch_size:
-            # apply the update using the jitted _update function.
-            batch = self._buffer.sample_batch(self._batch_size)
-            self._learner_state, loss = self._update(
-                self._learner_state, 
-                batch)
-            return loss
-        return None
+        # if self._buffer.size> self._batch_size:
+        # apply the update using the jitted _update function.
+        batch = self._buffer.sample_batch(self._batch_size)
+        self._learner_state, loss = self._update(
+            self._learner_state, 
+            batch)
+        return loss
+        # return None
 
 default_env = np.array([
     [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
