@@ -7,15 +7,14 @@ import numpy as np
 import chex
 import tree
 from typing import Callable
-from RL_Maze_escape_algorithms import environment
-from RL_Maze_escape_algorithms.environment import Maze, Status
+import environment
+from environment import Maze, Status
 import pickle
 from datetime import datetime
 import matplotlib.pyplot as plt
 import jaxlib
 from os.path import exists
-from RL_Maze_escape_algorithms.abstracts import LearnerState, Transition, 
-ReplayByuffer, run_dqn_episode
+from abstracts import LearnerState, Transition, ReplayByuffer, run_dqn_episode
 
 
 # Haiku Neural network function returning a Neural layers
@@ -30,19 +29,14 @@ def policyGradientMazeNetwork(x:  chex.Array):
 # transform the model
 
 # removes the random generator parameter from the apply() function.
-dqn_network = 
-hk.without_apply_rng(hk.transform(policyGradientMazeNetwork))
+dqn_network = hk.without_apply_rng(hk.transform(policyGradientMazeNetwork))
 
 
 # ----------------------------------------------------------------
 
 class PolicyGradientAgent:
-    def __init__(self,
-                 init_params_function: Callable[[jax.random.KeyArray], 
-hk.Params],  # a callable function taking jax.random.KeyArray input and 
-returning hk.Params instance output.
-                 network_apply_function: Callable[[hk.Params, chex.Array], 
-chex.Array],
+    def __init__(self, init_params_function: Callable[[jax.random.KeyArray], hk.Params],  # a callable function taking jax.random.KeyArray input and returning hk.Params instance output.
+                 network_apply_function: Callable[[hk.Params, chex.Array], chex.Array],
                  optimizer: optax.GradientTransformation,
                  gamma: float,
                  epsilon: float,
@@ -50,8 +44,7 @@ chex.Array],
                  buffer_capacity: int,
                  batch_size: int,
                  # target_ema: Exponential moving average
-                 # method of updating a target neural network slowly over 
-time to make training more stable
+                 # method of updating a target neural network slowly over time to make training more stable
                  target_ema: float,
                  seed: int=0,
                  model_name: str="Policy_gradient_network_params.pkl",
@@ -74,27 +67,23 @@ time to make training more stable
         # initializing the parameters
         params= init_params_function(jax.random.PRNGKey(seed))
         if exists(f"{self.size}/{model_name}"):
-            params = self.load_model(params = params, 
-model_name=f"{self.size}/{model_name}")
+            params = self.load_model(params = params, model_name=f"{self.size}/{model_name}")
 
         self._learner_state = LearnerState(
             online_params= params,
-            opt_state= self._optimizer.init(params), # setting the 
-optimizer
+            opt_state= self._optimizer.init(params), # setting the optimizer
             target_params= jax.tree_map(jnp.copy, params),
         )
 
         # Jitting the _update function.
         self._update = jax.jit(self._update_function)
 
-    def dump_model(self, params: 
-hk.Params,model_name="policy_gradient_params.pkl"):
+    def dump_model(self, params: hk.Params,model_name="policy_gradient_params.pkl"):
         serialized_params = hk.data_structures.to_state_dict(params)
         with open(f"{self.size}/{model_name}", 'wb') as f:
             pickle.dump(serialized_params, f)
 
-    def load_model(self, params: hk.Params, 
-model_name="policy_gradient_params.pkl") -> hk.Params:
+    def load_model(self, params: hk.Params, model_name="policy_gradient_params.pkl") -> hk.Params:
          with open(model_name, "rb") as f:
             loaded_params = pickle.load(f)
             params = hk.data_structures.merge(params, loaded_params)
@@ -107,8 +96,7 @@ model_name="policy_gradient_params.pkl") -> hk.Params:
         log_probs = jnp.log(softmax_logits)
 
         # Gather the log probabilities for the true labels
-        true_label_log_probs = jnp.sum(log_probs * 
-jax.nn.one_hot(true_labels, predicted_logits.shape[-1]), axis=-1)
+        true_label_log_probs = jnp.sum(log_probs * jax.nn.one_hot(true_labels, predicted_logits.shape[-1]), axis=-1)
 
         # Compute the negative log-likelihood (cross-entropy loss)
         loss = -true_label_log_probs
@@ -126,10 +114,8 @@ jax.nn.one_hot(true_labels, predicted_logits.shape[-1]), axis=-1)
                 self,
                 state: LearnerState,
                 batch: Transition) -> tuple[LearnerState, chex.Array]:
-        loss, grads = 
-jax.value_and_grad(self._loss_function)(state.online_params, batch)
-        updates, opt_state = self._optimizer.update(grads, 
-state.opt_state)
+        loss, grads = jax.value_and_grad(self._loss_function)(state.online_params, batch)
+        updates, opt_state = self._optimizer.update(grads, state.opt_state)
         params = optax.apply_updates(state.online_params, updates)
 
         # return the updates Learner state and loss.
@@ -153,8 +139,7 @@ state.opt_state)
             p_values = jnp.squeeze(p_values, axis=0)
             val = jnp.argmax(p_values, axis=-1)
             # Check if the maximum index is in the list
-            if isinstance(val, list) or isinstance(val, 
-jaxlib.xla_extension.ArrayImpl):
+            if isinstance(val, list) or isinstance(val, jaxlib.xla_extension.ArrayImpl):
                 return int(val[0])
             # If it's not in the list, select a default value
             return int(val)
@@ -177,8 +162,7 @@ jaxlib.xla_extension.ArrayImpl):
         actions = jnp.asarray(transition.action)
         logits = self._network_apply_func(param, states)
         log_probs = self.softmax_cross_entropy_loss(logits, actions)
-        loss = jnp.mean(-jnp.asarray(log_probs) * transition.reward, 
-axis=-1)
+        loss = jnp.mean(-jnp.asarray(log_probs) * transition.reward, axis=-1)
         return loss
 
     def observe(self, state, action, next_state, reward, status):
@@ -295,8 +279,7 @@ rate).
 
     def train(self):
         print(f"Policy Gradient training")
-        print(f"Episode number:\t| Average reward on 
-{self.num_eval_episodes} eval episodes")
+        print(f"Episode number:\t| Average reward on {self.num_eval_episodes} eval episodes")
         print("------------------------------------------------------")
         timestamp = datetime.now()
         timelapse = None
@@ -326,8 +309,7 @@ rate).
                 # -------------------------------------------------------
 
                 # Evaluate by running in all cells.
-                w_all, win_rate = self._env.check_win_all(self, 
-model_type=environment.maze.ModelType.AgentBased)
+                w_all, win_rate = self._env.check_win_all(self, model_type=environment.maze.ModelType.AgentBased)
                 self.win_rate_history.append((episode, win_rate))
 
                 # This will stop at convergence.
@@ -342,8 +324,7 @@ model_type=environment.maze.ModelType.AgentBased)
 
 
 
-    def dump_model(self, params: 
-hk.Params,model_name="policy_gradient_params.pkl"):
+    def dump_model(self, params: hk.Params,model_name="policy_gradient_params.pkl"):
         with open(f"{self._env.maze.shape[0]}/{model_name}", 'wb') as f:
             pickle.dump(params, f)
 
@@ -372,8 +353,7 @@ hk.Params,model_name="policy_gradient_params.pkl"):
 # Create the neural network pure functions.
 pg_network = hk.without_apply_rng(hk.transform(policyGradientMazeNetwork))
 
-# Bind a dummy observation to the init function so the agent doesn't have 
-to.
+# Bind a dummy observation to the init function so the agent doesn't have to.
 dummy_observation = jnp.zeros((2,), float)
 init_params_fn = lambda rng: pg_network.init(rng, dummy_observation[None, 
 ...])
