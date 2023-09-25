@@ -1,13 +1,14 @@
-### Escape from a maze using reinforcement learning
+### Reinforcement Learning Methods for the Maze Game
 
-##### Solving an optimization problem using an MDP and TD learning
+##### Solving the problem using DQN, DDQN, DDQN, and Policy gradient
 
-The table below gives an impression of the relative performance of each of these models (on my PC):
+The table below gives an impression of the relative performance of each of these models :
 
 | Model | Trained | Average no of episodes | Average training time |
 | --- | --- | --- | --- | 
 | DQN | 10 times | 9700 | 504.623 sec |
 | DDQN  | 10 times | 12700 | 357.61 sec |
 |SARSA  | 10 times |       |            |
+|Policy grandient| 10 times|     |          |
 
 Requires Matplotlib, NumPy, and Jax.
