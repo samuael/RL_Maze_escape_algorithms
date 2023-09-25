@@ -6,7 +6,8 @@ The table below gives an impression of the relative performance of each of these
 
 | Model | Trained | Average no of episodes | Average training time |
 | --- | --- | --- | --- | 
-| SARSA | 10 times | 43600 | 16.5 sec |
-| DDQN  | 10 times | 43600 | 5.2 sec |
+| DQN | 10 times | 9700 | 504.623 sec |
+| DDQN  | 10 times | 12700 | 357.61 sec |
+|SARSA  | 10 times |       |            |
 
-Requires matplotlib, numpy, and Jax.
+Requires Matplotlib, NumPy, and Jax.
