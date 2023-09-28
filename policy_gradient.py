@@ -190,35 +190,35 @@ class PolicyGradientAgent:
         return loss
         # return None
 
-default_env = np.array([
-    [ 1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.],
-    [ 1.,  0.,  1.,  1.,  1.,  0.,  1.,  1.],
-    [ 1.,  1.,  1.,  1.,  0.,  1.,  0.,  1.],
-    [ 1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.],
-    [ 1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.],
-    [ 1.,  1.,  1.,  0.,  1.,  0.,  0.,  0.],
-    [ 1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.],
-    [ 1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.]
-])
+# default_env = np.array([
+#     [ 1.,  0.,  1.,  1.,  1.,  1.,  1.,  1.],
+#     [ 1.,  0.,  1.,  1.,  1.,  0.,  1.,  1.],
+#     [ 1.,  1.,  1.,  1.,  0.,  1.,  0.,  1.],
+#     [ 1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.],
+#     [ 1.,  1.,  0.,  1.,  1.,  1.,  1.,  1.],
+#     [ 1.,  1.,  1.,  0.,  1.,  0.,  0.,  0.],
+#     [ 1.,  1.,  1.,  0.,  1.,  1.,  1.,  1.],
+#     [ 1.,  1.,  1.,  1.,  0.,  1.,  1.,  1.]
+# ])
 
-
-default_env = np.array([
-    [0, 1, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 1, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 0, 0],
-    [1, 0, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1],
-    [0, 1, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0]
-])
 
 # default_env = np.array([
-#     [0, 1, 0, 0],
-#     [0, 1, 0, 1],
-#     [0, 0, 0, 1],
-#     [0, 1, 0, 0]
+#     [0, 1, 0, 0, 0, 0, 0, 0],
+#     [0, 1, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 1, 0, 1, 0],
+#     [0, 1, 0, 1, 0, 0, 0, 0],
+#     [1, 0, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 0, 1, 1, 1],
+#     [0, 1, 1, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 1, 0, 0]
 # ])
+
+default_env = np.array([
+    [0, 1, 0, 0],
+    [0, 1, 0, 1],
+    [0, 0, 0, 1],
+    [0, 0, 0, 0]
+])
 
 
 class PolicyGradientModel:
@@ -343,8 +343,7 @@ pg_network = hk.without_apply_rng(hk.transform(policyGradientMazeNetwork))
 
 # Bind a dummy observation to the init function so the agent doesn't have to.
 dummy_observation = jnp.zeros((2,), float)
-init_params_fn = lambda rng: pg_network.init(rng, dummy_observation[None, 
-...])
+init_params_fn = lambda rng: pg_network.init(rng, dummy_observation[None, ...])
 
 env = Maze(default_env)
 model = PolicyGradientModel(
@@ -353,12 +352,12 @@ model = PolicyGradientModel(
         init_params_function=init_params_fn ,
         network_apply_function= pg_network.apply,
         optimizer= optax.adam(learning_rate=3e-4),
-        gamma=0.9,
-        epsilon=0.3,
+        gamma=0.95,
+        epsilon=0.1,
         num_actions= len(env.actions),
         buffer_capacity= 10000,
-        batch_size= 256,
-        target_ema= .89,
+        batch_size= 32,
+        target_ema= .8,
         size=env.maze.shape[0],
     ),
 )

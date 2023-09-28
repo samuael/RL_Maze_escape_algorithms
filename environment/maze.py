@@ -155,7 +155,10 @@ class Maze:
         self.__ax1.get_figure().canvas.draw()
         self.__ax1.get_figure().canvas.flush_events()
 
-    def render(self, content=Render.NOTHING):
+    def close():
+        plt.close()
+        
+    def render(self, content=Render.NOTHING, timeout =0):
         """ Record what will be rendered during play and/or training.
 
             :param Render content: NOTHING, TRAINING, MOVES
@@ -179,6 +182,11 @@ class Maze:
             if self.__ax1 is None:
                 fig, self.__ax1 = plt.subplots(1, 1, tight_layout=True)
                 # fig.canvas.set_window_title("Maze")
+            if timeout>0:
+                timer = fig.canvas.new_timer(interval=timeout)
+                # fig.canvas.close_event()
+                timer.add_callback(Maze.close)
+
 
         plt.show(block=False)
 

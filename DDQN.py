@@ -184,6 +184,7 @@ class DQNAgent:
             transitions.reward,
             transitions.reward + self._gamma * jnp.max(target_q_actions, axis=-1)
         )
+        y = transitions.reward + (1-transitions.done) *  ( self._gamma * jnp.max(target_q_actions, axis=-1))
         
         online_q_values = self._network_apply_func(online_params, transitions.state) 
         

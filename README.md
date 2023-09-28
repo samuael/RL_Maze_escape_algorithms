@@ -11,4 +11,13 @@ The table below gives an impression of the relative performance of each of these
 |SARSA  | 10 times |   300    |   43.31 sec         |
 |Policy grandient| 10 times|     |          |
 
+<<<<<<< HEAD
 Requires Matplotlib, NumPy, and Jax.
+=======
+Requires matplotlib, numpy, and Jax.
+
+
+DEMO
+
+![](Untitled.gif)
+>>>>>>> 9f20457 (README update and added a main file)
