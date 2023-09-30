@@ -121,6 +121,7 @@ class DQNAgent:
             transitions=batch
         )
         
+        # print("The Gradient: ", gradient)
         
         # Apply gradient based on the loss function.
         updates, opt_state = self._optimizer.update(gradient, state.opt_state)

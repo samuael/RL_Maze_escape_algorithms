@@ -5,7 +5,6 @@ import optax
 import random
 import numpy as np
 import chex
-import tree
 from typing import Callable
 import environment
 from environment import Maze, Status
