@@ -14,6 +14,4 @@ The table below gives an impression of the relative performance of each of these
 Requires matplotlib, numpy, and Jax.
 
 
-DEMO
-
 ![](Untitled.gif)
