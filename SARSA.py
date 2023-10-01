@@ -21,22 +21,37 @@ from environment.maze import Maze,  Render, Status
 # ])
 
 maze = np.array([
-    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
-    [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1],
-    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0],
-    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1],
-    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1],
-    [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0],
-    [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1],
-    [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
-    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0]
+    [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0],
+    [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0],
+    [1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0],
+    [0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
+    [0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+    [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
+    [0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0],
+    [0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 ])
+# maze = np.array([
+#     [0, 1, 0, 0, 0, 0, 0, 0],
+#     [0, 1, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 1, 0, 1, 0],
+#     [0, 1, 0, 1, 0, 0, 0, 0],
+#     [1, 0, 0, 1, 0, 1, 0, 0],
+#     [0, 0, 0, 1, 0, 1, 1, 1],
+#     [0, 1, 1, 0, 0, 0, 0, 0],
+#     [0, 0, 0, 0, 0, 1, 0, 0]
+# ])
 
 game = Maze(maze)
 
@@ -113,23 +128,23 @@ class SARSAModel():
                 self.Q[(self.makeHashable(state), float(action))] += learning_rate * (reward + discount * next_q -self.Q[(self.makeHashable(state), float(action))])
                 
                 if status in (Status.WIN, Status.LOSE):
-                    break
+                    break 
                 # Resetting the next state values to current.
                 state = next_state
                 action = next_action
                 self.environment.render_q(self)
                 
-                # checks for convergence every 5 episode.
-                if episode % 5 == 0:
-                    # check if the current model does win from all starting cells
-                    # only possible if there is a finite number of starting states
-                    w_all, win_rate = self.environment.check_win_all(self)
-                    win_history.append((episode, win_rate))
-                    
-                    # This will stop at convergence.
-                    if w_all:
-                        print("won from all start cells, stop learning\n")
-                        break
+            # checks for convergence every 5 episode.
+            if episode % 5 == 0:
+                # check if the current model does win from all starting cells
+                # only possible if there is a finite number of starting states
+                w_all, win_rate = self.environment.check_win_all(self)
+                win_history.append((episode, win_rate))
+                
+                # This will stop at convergence.
+                if w_all:
+                    print("won from all start cells, stop learning\n")
+                    break
                 exploration_rate *= exploration_decay
             print(f"Episod: {episode}/{episodes} | status: {status.name} |e-val: {exploration_rate}\n")
         self.dump_model(self.Q)
@@ -176,7 +191,7 @@ model = SARSAModel(game)
 game.play(model)
 
 # Train the model
-cumulative_reward_history, win_history, episode, training_duration=model.train(discount=0.9, exploration_rate=0.1, exploration_decay=0.999, learning_rate=0.1, episodes=300)
+cumulative_reward_history, win_history, episode, training_duration=model.train(discount=0.9, exploration_rate=0.1, exploration_decay=0.999, learning_rate=0.1, episodes=30000000)
 try:
     cumulative_reward_history  # force a NameError exception if h does not exist, and thus don't try to show win rate and cumulative reward
     fig, (ax1, ax2) = plt.subplots(2, 1, tight_layout=True)
