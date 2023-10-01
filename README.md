@@ -12,11 +12,11 @@ Result recorded on 10x10 grid of maze by running 10x for these three(3) algorith
 | DQN | 10 times | 9700 | 504.623 sec |
 | DDQN  | 10 times | 12700 | 357.61 sec |
 | SARSA  | 10 times |   300    |   43.31 sec |
+| A2C | 10 times | 8200 | 510.7 sec |
 
 Implemented but have a bad result.
 
 |Policy grandient|
-| Actor-Critic |
 
 
 Required libraries:
